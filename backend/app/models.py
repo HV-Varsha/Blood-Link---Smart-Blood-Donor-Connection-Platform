@@ -200,3 +200,268 @@ class TokenBlocklist(db.Model):
         default=lambda: datetime.now(timezone.utc),
         nullable=False
     )
+
+
+# ==========================================
+# BLOOD REQUEST MODEL
+# ==========================================
+
+class BloodRequest(db.Model):
+
+    __tablename__ = "blood_requests"
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    requester_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
+    patient_name = db.Column(
+        db.String(100),
+        nullable=False
+    )
+
+    blood_group = db.Column(
+        db.String(5),
+        nullable=False,
+        index=True
+    )
+
+    units_required = db.Column(
+        db.Integer,
+        nullable=False
+    )
+
+    hospital_name = db.Column(
+        db.String(150),
+        nullable=False
+    )
+
+    area = db.Column(
+        db.String(100),
+        nullable=False
+    )
+
+    city = db.Column(
+        db.String(100),
+        nullable=False,
+        index=True
+    )
+
+    contact_number = db.Column(
+        db.String(20),
+        nullable=False
+    )
+
+    required_by = db.Column(
+        db.Date,
+        nullable=False
+    )
+
+    urgency = db.Column(
+        db.String(20),
+        default="normal",
+        nullable=False
+    )
+
+    status = db.Column(
+        db.String(20),
+        default="pending",
+        nullable=False,
+        index=True
+    )
+
+    created_at = db.Column(
+        db.DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
+
+    requester = db.relationship(
+        "User",
+        backref="blood_requests"
+    )
+
+    def to_dict(self):
+
+        return {
+            "id": self.id,
+            "requester_id": self.requester_id,
+            "patient_name": self.patient_name,
+            "blood_group": self.blood_group,
+            "units_required": self.units_required,
+            "hospital_name": self.hospital_name,
+            "area": self.area,
+            "city": self.city,
+            "contact_number": self.contact_number,
+            "required_by": self.required_by.isoformat(),
+            "urgency": self.urgency,
+            "status": self.status,
+            "created_at": (
+                self.created_at.isoformat()
+                if self.created_at else None
+            )
+        }
+
+
+# ==========================================
+# DONOR ALERT LOG MODEL
+# ==========================================
+
+class DonorAlertLog(db.Model):
+
+    __tablename__ = "donor_alert_logs"
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    donor_id = db.Column(
+        db.Integer,
+        db.ForeignKey("donors.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
+    request_id = db.Column(
+        db.Integer,
+        db.ForeignKey("blood_requests.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
+    sent_at = db.Column(
+        db.DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+        index=True
+    )
+
+    donor = db.relationship(
+        "Donor",
+        backref=db.backref("alert_logs", lazy=True)
+    )
+
+    blood_request = db.relationship(
+        "BloodRequest",
+        backref=db.backref("alert_logs", lazy=True)
+    )
+
+    def to_dict(self):
+
+        return {
+
+            "id": self.id,
+
+            "donor_id": self.donor_id,
+
+            "request_id": self.request_id,
+
+            "sent_at": (
+                self.sent_at.isoformat()
+                if self.sent_at else None
+            )
+
+        }
+
+
+# ==========================================
+# DONATION ALLOCATION MODEL
+# ==========================================
+
+class DonationAllocation(db.Model):
+
+    __tablename__ = "donation_allocations"
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    request_id = db.Column(
+        db.Integer,
+        db.ForeignKey("blood_requests.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
+    donor_id = db.Column(
+        db.Integer,
+        db.ForeignKey("donors.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
+    assigned_by = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True
+    )
+
+    status = db.Column(
+        db.String(20),
+        nullable=False,
+        default="assigned",
+        index=True
+    )
+
+    assigned_at = db.Column(
+        db.DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
+
+    withdrawn_at = db.Column(
+        db.DateTime(timezone=True),
+        nullable=True
+    )
+
+    withdrawal_reason = db.Column(
+        db.String(250),
+        nullable=True
+    )
+
+    donor = db.relationship(
+        "Donor",
+        backref=db.backref("allocations", lazy=True)
+    )
+
+    blood_request = db.relationship(
+        "BloodRequest",
+        backref=db.backref("allocations", lazy=True)
+    )
+
+    def to_dict(self):
+
+        return {
+
+            "id": self.id,
+
+            "request_id": self.request_id,
+
+            "donor_id": self.donor_id,
+
+            "assigned_by": self.assigned_by,
+
+            "status": self.status,
+
+            "assigned_at": (
+                self.assigned_at.isoformat()
+                if self.assigned_at else None
+            ),
+
+            "withdrawn_at": (
+                self.withdrawn_at.isoformat()
+                if self.withdrawn_at else None
+            ),
+
+            "withdrawal_reason": self.withdrawal_reason
+
+        }

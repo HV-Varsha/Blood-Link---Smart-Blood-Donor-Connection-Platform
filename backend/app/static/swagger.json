@@ -1,0 +1,782 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "BloodLink API",
+    "description": "Smart Blood Donor Connection Platform API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5003",
+      "description": "Local Flask Server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "User registration, login and authentication"
+    },
+    {
+      "name": "Donors",
+      "description": "Donor profile management and donor search"
+    },
+    {
+      "name": "Blood Requests",
+      "description": "Create and manage blood requests"
+    },
+    {
+      "name": "Health",
+      "description": "Backend health check"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Health Check",
+        "responses": {
+          "200": {
+            "description": "Backend is running"
+          }
+        }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Register User",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Registration successful"
+          },
+          "400": {
+            "description": "Invalid registration data"
+          },
+          "409": {
+            "description": "Email already registered"
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Login User",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful"
+          },
+          "401": {
+            "description": "Invalid email or password"
+          }
+        }
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "tags": ["Authentication"],
+        "summary": "Get Current User",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User details retrieved successfully"
+          },
+          "401": {
+            "description": "Authentication required"
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Logout User",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Logout successful"
+          },
+          "401": {
+            "description": "Authentication required"
+          }
+        }
+      }
+    },
+    "/api/donors/profile": {
+      "post": {
+        "tags": ["Donors"],
+        "summary": "Create Donor Profile",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DonorCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Donor profile created successfully"
+          }
+        }
+      },
+      "get": {
+        "tags": ["Donors"],
+        "summary": "View Own Donor Profile",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Donor profile retrieved successfully"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Donors"],
+        "summary": "Update Donor Profile",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DonorUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Donor profile updated successfully"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Donors"],
+        "summary": "Delete Donor Profile",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Donor profile deleted successfully"
+          }
+        }
+      }
+    },
+    "/api/donors/profile/availability": {
+      "patch": {
+        "tags": ["Donors"],
+        "summary": "Update Donor Availability",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AvailabilityUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Availability updated successfully"
+          }
+        }
+      }
+    },
+    "/api/donors/search": {
+      "get": {
+        "tags": ["Donors"],
+        "summary": "Search Available Donors",
+        "parameters": [
+          {
+            "name": "blood_group",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "city",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "area",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Donors retrieved successfully"
+          }
+        }
+      }
+    },
+    "/api/donors/{donor_id}": {
+      "get": {
+        "tags": ["Donors"],
+        "summary": "Get Donor by ID",
+        "parameters": [
+          {
+            "name": "donor_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Donor retrieved successfully"
+          },
+          "404": {
+            "description": "Donor not found"
+          }
+        }
+      }
+    },
+    "/api/requests/": {
+      "post": {
+        "tags": ["Blood Requests"],
+        "summary": "Create Blood Request",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BloodRequestCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Blood request created successfully"
+          }
+        }
+      },
+      "get": {
+        "tags": ["Blood Requests"],
+        "summary": "Get All Blood Requests",
+        "responses": {
+          "200": {
+            "description": "Blood requests retrieved successfully"
+          }
+        }
+      }
+    },
+    "/api/requests/{request_id}": {
+      "get": {
+        "tags": ["Blood Requests"],
+        "summary": "Get Blood Request by ID",
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Blood request retrieved successfully"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Blood Requests"],
+        "summary": "Update Blood Request",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BloodRequestUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Blood request updated successfully"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Blood Requests"],
+        "summary": "Delete Blood Request",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Blood request deleted successfully"
+          }
+        }
+      }
+    },
+    "/api/fatigue/check": {
+      "get": {
+        "tags": ["Donor Fatigue Protection"],
+        "summary": "Check Donor Alert Cooldown",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Donor cooldown status retrieved"
+          }
+        }
+      }
+    },
+    "/api/fatigue/record-alert": {
+      "post": {
+        "tags": ["Donor Fatigue Protection"],
+        "summary": "Record Donor Alert",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Donor alert recorded"
+          }
+        }
+      }
+    },
+    "/api/shortage/dashboard": {
+      "get": {
+        "tags": ["Blood Shortage Dashboard"],
+        "summary": "Get Blood Shortage Dashboard",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Shortage dashboard retrieved"
+          }
+        }
+      }
+    },
+    "/api/rare-blood/requests": {
+      "get": {
+        "tags": ["Rare Blood Group Priority"],
+        "summary": "Get Rare Blood Group Requests",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rare blood requests retrieved"
+          }
+        }
+      }
+    },
+    "/api/rare-blood/match/{request_id}": {
+      "get": {
+        "tags": ["Rare Blood Group Priority"],
+        "summary": "Find Compatible Donors",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Compatible donors retrieved"
+          }
+        }
+      }
+    },
+    "/api/eligibility/my-status": {
+      "get": {
+        "tags": ["Donation Eligibility Reminder"],
+        "summary": "Check Donation Eligibility",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Eligibility status retrieved"
+          }
+        }
+      }
+    },
+    "/api/backup/withdraw": {
+      "post": {
+        "tags": ["Donor Withdrawal and Backup Allocation"],
+        "summary": "Withdraw from Donation Assignment",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Donor withdrawal recorded"
+          }
+        }
+      }
+    },
+    "/api/backup/assign/{request_id}": {
+      "post": {
+        "tags": ["Donor Withdrawal and Backup Allocation"],
+        "summary": "Assign Donor to Request",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Donor assigned successfully"
+          }
+        }
+      }
+    },
+    "/api/backup/allocate/{request_id}": {
+      "post": {
+        "tags": ["Donor Withdrawal and Backup Allocation"],
+        "summary": "Automatically Allocate Backup Donor",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Backup donor allocated successfully"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "RegisterRequest": {
+        "type": "object",
+        "required": [
+          "name",
+          "email",
+          "password",
+          "phone",
+          "role"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "donor",
+              "recipient"
+            ]
+          }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "DonorCreate": {
+        "type": "object",
+        "required": [
+          "blood_group",
+          "area",
+          "city",
+          "age"
+        ],
+        "properties": {
+          "blood_group": {
+            "type": "string"
+          },
+          "area": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "age": {
+            "type": "integer"
+          },
+          "last_donation_date": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "DonorUpdate": {
+        "type": "object",
+        "properties": {
+          "blood_group": {
+            "type": "string"
+          },
+          "area": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "age": {
+            "type": "integer"
+          },
+          "last_donation_date": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "AvailabilityUpdate": {
+        "type": "object",
+        "required": [
+          "is_available"
+        ],
+        "properties": {
+          "is_available": {
+            "type": "boolean"
+          }
+        }
+      },
+      "BloodRequestCreate": {
+        "type": "object",
+        "required": [
+          "patient_name",
+          "blood_group",
+          "units_required",
+          "hospital_name",
+          "area",
+          "city",
+          "contact_number",
+          "required_by",
+          "urgency"
+        ],
+        "properties": {
+          "patient_name": {
+            "type": "string"
+          },
+          "blood_group": {
+            "type": "string"
+          },
+          "units_required": {
+            "type": "integer"
+          },
+          "hospital_name": {
+            "type": "string"
+          },
+          "area": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "contact_number": {
+            "type": "string"
+          },
+          "required_by": {
+            "type": "string",
+            "format": "date"
+          },
+          "urgency": {
+            "type": "string"
+          }
+        }
+      },
+      "BloodRequestUpdate": {
+        "type": "object",
+        "properties": {
+          "patient_name": {
+            "type": "string"
+          },
+          "blood_group": {
+            "type": "string"
+          },
+          "units_required": {
+            "type": "integer"
+          },
+          "hospital_name": {
+            "type": "string"
+          },
+          "area": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "contact_number": {
+            "type": "string"
+          },
+          "required_by": {
+            "type": "string",
+            "format": "date"
+          },
+          "urgency": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
