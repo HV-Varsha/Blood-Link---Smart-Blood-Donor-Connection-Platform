@@ -96,11 +96,7 @@
       "get": {
         "tags": ["Authentication"],
         "summary": "Get Current User",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{"BearerAuth": []}],
         "responses": {
           "200": {
             "description": "User details retrieved successfully"
@@ -115,11 +111,7 @@
       "post": {
         "tags": ["Authentication"],
         "summary": "Logout User",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{"BearerAuth": []}],
         "responses": {
           "200": {
             "description": "Logout successful"
@@ -134,11 +126,7 @@
       "post": {
         "tags": ["Donors"],
         "summary": "Create Donor Profile",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{"BearerAuth": []}],
         "requestBody": {
           "required": true,
           "content": {
@@ -158,11 +146,7 @@
       "get": {
         "tags": ["Donors"],
         "summary": "View Own Donor Profile",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{"BearerAuth": []}],
         "responses": {
           "200": {
             "description": "Donor profile retrieved successfully"
@@ -172,11 +156,7 @@
       "put": {
         "tags": ["Donors"],
         "summary": "Update Donor Profile",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{"BearerAuth": []}],
         "requestBody": {
           "required": true,
           "content": {
@@ -196,11 +176,7 @@
       "delete": {
         "tags": ["Donors"],
         "summary": "Delete Donor Profile",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{"BearerAuth": []}],
         "responses": {
           "200": {
             "description": "Donor profile deleted successfully"
@@ -212,11 +188,7 @@
       "patch": {
         "tags": ["Donors"],
         "summary": "Update Donor Availability",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{"BearerAuth": []}],
         "requestBody": {
           "required": true,
           "content": {
@@ -242,23 +214,17 @@
           {
             "name": "blood_group",
             "in": "query",
-            "schema": {
-              "type": "string"
-            }
+            "schema": {"type": "string"}
           },
           {
             "name": "city",
             "in": "query",
-            "schema": {
-              "type": "string"
-            }
+            "schema": {"type": "string"}
           },
           {
             "name": "area",
             "in": "query",
-            "schema": {
-              "type": "string"
-            }
+            "schema": {"type": "string"}
           }
         ],
         "responses": {
@@ -277,9 +243,7 @@
             "name": "donor_id",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "integer"
-            }
+            "schema": {"type": "integer"}
           }
         ],
         "responses": {
@@ -296,11 +260,7 @@
       "post": {
         "tags": ["Blood Requests"],
         "summary": "Create Blood Request",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{"BearerAuth": []}],
         "requestBody": {
           "required": true,
           "content": {
@@ -320,9 +280,13 @@
       "get": {
         "tags": ["Blood Requests"],
         "summary": "Get All Blood Requests",
+        "security": [{"BearerAuth": []}],
         "responses": {
           "200": {
             "description": "Blood requests retrieved successfully"
+          },
+          "401": {
+            "description": "Authentication token is required"
           }
         }
       }
@@ -336,9 +300,7 @@
             "name": "request_id",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "integer"
-            }
+            "schema": {"type": "integer"}
           }
         ],
         "responses": {
@@ -350,19 +312,13 @@
       "put": {
         "tags": ["Blood Requests"],
         "summary": "Update Blood Request",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{"BearerAuth": []}],
         "parameters": [
           {
             "name": "request_id",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "integer"
-            }
+            "schema": {"type": "integer"}
           }
         ],
         "requestBody": {
@@ -384,19 +340,13 @@
       "delete": {
         "tags": ["Blood Requests"],
         "summary": "Delete Blood Request",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{"BearerAuth": []}],
         "parameters": [
           {
             "name": "request_id",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "integer"
-            }
+            "schema": {"type": "integer"}
           }
         ],
         "responses": {
@@ -406,15 +356,70 @@
         }
       }
     },
+    "/api/requests/{request_id}/accept": {
+      "post": {
+        "tags": ["Blood Requests"],
+        "summary": "Donor Accepts Blood Request",
+        "description": "Allows an authenticated donor with a compatible blood group and an available donor profile to accept a blood request.",
+        "security": [{"BearerAuth": []}],
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "path",
+            "required": true,
+            "description": "ID of the blood request",
+            "schema": {"type": "integer"}
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Blood request accepted successfully"
+          },
+          "400": {
+            "description": "Donor is unavailable, blood group is incompatible, or request cannot be accepted"
+          },
+          "401": {
+            "description": "Authentication token is missing or invalid"
+          },
+          "403": {
+            "description": "Only registered donors can accept requests"
+          },
+          "404": {
+            "description": "Blood request or donor profile not found"
+          },
+          "409": {
+            "description": "Donor has already accepted an active request or request is already fulfilled"
+          }
+        }
+      }
+    },
+    "/api/requests/my-accepted": {
+      "get": {
+        "tags": ["Blood Requests"],
+        "summary": "Get Requests Accepted by Current Donor",
+        "description": "Returns the blood requests that the authenticated donor has accepted.",
+        "security": [{"BearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "Accepted blood requests retrieved successfully"
+          },
+          "401": {
+            "description": "Authentication token is missing or invalid"
+          },
+          "403": {
+            "description": "Only registered donors can view accepted requests"
+          },
+          "404": {
+            "description": "Donor profile not found"
+          }
+        }
+      }
+    },
     "/api/fatigue/check": {
       "get": {
         "tags": ["Donor Fatigue Protection"],
         "summary": "Check Donor Alert Cooldown",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{"BearerAuth": []}],
         "responses": {
           "200": {
             "description": "Donor cooldown status retrieved"
@@ -426,11 +431,7 @@
       "post": {
         "tags": ["Donor Fatigue Protection"],
         "summary": "Record Donor Alert",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{"BearerAuth": []}],
         "responses": {
           "201": {
             "description": "Donor alert recorded"
@@ -442,11 +443,7 @@
       "get": {
         "tags": ["Blood Shortage Dashboard"],
         "summary": "Get Blood Shortage Dashboard",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{"BearerAuth": []}],
         "responses": {
           "200": {
             "description": "Shortage dashboard retrieved"
@@ -458,11 +455,7 @@
       "get": {
         "tags": ["Rare Blood Group Priority"],
         "summary": "Get Rare Blood Group Requests",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{"BearerAuth": []}],
         "responses": {
           "200": {
             "description": "Rare blood requests retrieved"
@@ -474,19 +467,13 @@
       "get": {
         "tags": ["Rare Blood Group Priority"],
         "summary": "Find Compatible Donors",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{"BearerAuth": []}],
         "parameters": [
           {
             "name": "request_id",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "integer"
-            }
+            "schema": {"type": "integer"}
           }
         ],
         "responses": {
@@ -500,11 +487,7 @@
       "get": {
         "tags": ["Donation Eligibility Reminder"],
         "summary": "Check Donation Eligibility",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{"BearerAuth": []}],
         "responses": {
           "200": {
             "description": "Eligibility status retrieved"
@@ -516,11 +499,7 @@
       "post": {
         "tags": ["Donor Withdrawal and Backup Allocation"],
         "summary": "Withdraw from Donation Assignment",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{"BearerAuth": []}],
         "responses": {
           "200": {
             "description": "Donor withdrawal recorded"
@@ -532,19 +511,13 @@
       "post": {
         "tags": ["Donor Withdrawal and Backup Allocation"],
         "summary": "Assign Donor to Request",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{"BearerAuth": []}],
         "parameters": [
           {
             "name": "request_id",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "integer"
-            }
+            "schema": {"type": "integer"}
           }
         ],
         "responses": {
@@ -558,19 +531,13 @@
       "post": {
         "tags": ["Donor Withdrawal and Backup Allocation"],
         "summary": "Automatically Allocate Backup Donor",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{"BearerAuth": []}],
         "parameters": [
           {
             "name": "request_id",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "integer"
-            }
+            "schema": {"type": "integer"}
           }
         ],
         "responses": {
@@ -592,73 +559,34 @@
     "schemas": {
       "RegisterRequest": {
         "type": "object",
-        "required": [
-          "name",
-          "email",
-          "password",
-          "phone",
-          "role"
-        ],
+        "required": ["name", "email", "password", "phone", "role"],
         "properties": {
-          "name": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string",
-            "format": "email"
-          },
-          "password": {
-            "type": "string"
-          },
-          "phone": {
-            "type": "string"
-          },
+          "name": {"type": "string"},
+          "email": {"type": "string", "format": "email"},
+          "password": {"type": "string"},
+          "phone": {"type": "string"},
           "role": {
             "type": "string",
-            "enum": [
-              "donor",
-              "recipient"
-            ]
+            "enum": ["donor", "recipient"]
           }
         }
       },
       "LoginRequest": {
         "type": "object",
-        "required": [
-          "email",
-          "password"
-        ],
+        "required": ["email", "password"],
         "properties": {
-          "email": {
-            "type": "string",
-            "format": "email"
-          },
-          "password": {
-            "type": "string"
-          }
+          "email": {"type": "string", "format": "email"},
+          "password": {"type": "string"}
         }
       },
       "DonorCreate": {
         "type": "object",
-        "required": [
-          "blood_group",
-          "area",
-          "city",
-          "age"
-        ],
+        "required": ["blood_group", "area", "city", "age"],
         "properties": {
-          "blood_group": {
-            "type": "string"
-          },
-          "area": {
-            "type": "string"
-          },
-          "city": {
-            "type": "string"
-          },
-          "age": {
-            "type": "integer"
-          },
+          "blood_group": {"type": "string"},
+          "area": {"type": "string"},
+          "city": {"type": "string"},
+          "age": {"type": "integer"},
           "last_donation_date": {
             "type": "string",
             "format": "date"
@@ -668,18 +596,10 @@
       "DonorUpdate": {
         "type": "object",
         "properties": {
-          "blood_group": {
-            "type": "string"
-          },
-          "area": {
-            "type": "string"
-          },
-          "city": {
-            "type": "string"
-          },
-          "age": {
-            "type": "integer"
-          },
+          "blood_group": {"type": "string"},
+          "area": {"type": "string"},
+          "city": {"type": "string"},
+          "age": {"type": "integer"},
           "last_donation_date": {
             "type": "string",
             "format": "date"
@@ -688,13 +608,9 @@
       },
       "AvailabilityUpdate": {
         "type": "object",
-        "required": [
-          "is_available"
-        ],
+        "required": ["is_available"],
         "properties": {
-          "is_available": {
-            "type": "boolean"
-          }
+          "is_available": {"type": "boolean"}
         }
       },
       "BloodRequestCreate": {
@@ -711,70 +627,36 @@
           "urgency"
         ],
         "properties": {
-          "patient_name": {
-            "type": "string"
-          },
-          "blood_group": {
-            "type": "string"
-          },
-          "units_required": {
-            "type": "integer"
-          },
-          "hospital_name": {
-            "type": "string"
-          },
-          "area": {
-            "type": "string"
-          },
-          "city": {
-            "type": "string"
-          },
-          "contact_number": {
-            "type": "string"
-          },
+          "patient_name": {"type": "string"},
+          "blood_group": {"type": "string"},
+          "units_required": {"type": "integer"},
+          "hospital_name": {"type": "string"},
+          "area": {"type": "string"},
+          "city": {"type": "string"},
+          "contact_number": {"type": "string"},
           "required_by": {
             "type": "string",
             "format": "date"
           },
-          "urgency": {
-            "type": "string"
-          }
+          "urgency": {"type": "string"}
         }
       },
       "BloodRequestUpdate": {
         "type": "object",
         "properties": {
-          "patient_name": {
-            "type": "string"
-          },
-          "blood_group": {
-            "type": "string"
-          },
-          "units_required": {
-            "type": "integer"
-          },
-          "hospital_name": {
-            "type": "string"
-          },
-          "area": {
-            "type": "string"
-          },
-          "city": {
-            "type": "string"
-          },
-          "contact_number": {
-            "type": "string"
-          },
+          "patient_name": {"type": "string"},
+          "blood_group": {"type": "string"},
+          "units_required": {"type": "integer"},
+          "hospital_name": {"type": "string"},
+          "area": {"type": "string"},
+          "city": {"type": "string"},
+          "contact_number": {"type": "string"},
           "required_by": {
             "type": "string",
             "format": "date"
           },
-          "urgency": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string"
-          }
+          "urgency": {"type": "string"},
+          "status": {"type": "string"}
         }
       }
     }
